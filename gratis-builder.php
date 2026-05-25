@@ -16,6 +16,7 @@ define('GRATIS_BUILDER_PATH', plugin_dir_path(__FILE__));
 
 require_once GRATIS_BUILDER_PATH . 'includes/class-rest-api.php';
 require_once GRATIS_BUILDER_PATH . 'includes/class-patterns.php';
+require_once GRATIS_BUILDER_PATH . 'includes/class-cache-integration.php';
 
 add_action('init', function() {
     // Register block category
@@ -30,6 +31,11 @@ add_action('init', function() {
 
     // Register patterns
     Gratis_Builder_Patterns::register();
+
+    // Initialize cache-manager integration (if cache-manager is active)
+    if (did_action('gratis_cache_loaded') || class_exists('VLT\CacheManager\Plugin')) {
+        Gratis_Builder_Cache_Integration::init();
+    }
 });
 
 add_action('rest_api_init', function() {
