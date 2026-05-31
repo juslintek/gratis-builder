@@ -43,11 +43,13 @@ class Gratis_Builder_Directory {
         add_shortcode('gratis-submit-listing', [__CLASS__, 'submissionForm']);
 
         // REST API for search/filter
-        register_rest_route('gratis-builder/v1', '/listings', [
-            'methods' => 'GET',
-            'callback' => [__CLASS__, 'searchListings'],
-            'permission_callback' => '__return_true',
-        ]);
+        add_action('rest_api_init', function () {
+            register_rest_route('gratis-builder/v1', '/listings', [
+                'methods' => 'GET',
+                'callback' => [__CLASS__, 'searchListings'],
+                'permission_callback' => '__return_true',
+            ]);
+        });
     }
 
     public static function submissionForm(): string {
