@@ -31,6 +31,8 @@ add_action('init', function() {
 
     // Register patterns
     Gratis_Builder_Patterns::register();
+    require_once GRATIS_BUILDER_PATH . "includes/class-directory.php";
+    Gratis_Builder_Directory::register();
 
     // Initialize cache-manager integration (if cache-manager is active)
     if (did_action('gratis_cache_loaded') || class_exists('VLT\CacheManager\Plugin')) {
