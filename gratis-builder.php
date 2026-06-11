@@ -35,7 +35,7 @@ add_action('init', function() {
     Gratis_Builder_Directory::register();
 
     // Initialize cache-manager integration (if cache-manager is active)
-    if (did_action('gratis_cache_loaded') || class_exists('VLT\CacheManager\Plugin')) {
+    if (did_action('gratis_cache_loaded') || class_exists('Gratis\Cache\Plugin')) {
         Gratis_Builder_Cache_Integration::init();
     }
 });
