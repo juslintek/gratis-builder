@@ -5,6 +5,13 @@ class Gratis_Builder_Patterns {
     public static function register() {
         register_block_pattern_category('gratis-builder', ['label' => 'GRATIS Builder']);
 
+        // Register any custom categories defined in the admin UI.
+        if (class_exists('Gratis_Builder_Admin')) {
+            foreach (Gratis_Builder_Admin::get_custom_categories() as $slug => $label) {
+                register_block_pattern_category($slug, ['label' => $label]);
+            }
+        }
+
         $patterns_dir = GRATIS_BUILDER_PATH . 'patterns/';
         if (!is_dir($patterns_dir)) return;
 

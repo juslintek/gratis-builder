@@ -67,8 +67,12 @@ class Gratis_Builder_Directory {
 
     public static function searchListings(\WP_REST_Request $request): \WP_REST_Response {
         $args = ['post_type' => 'gratis_listing', 'posts_per_page' => 20, 'post_status' => 'publish'];
-        if ($q = $request->get_param('q')) $args['s'] = $q;
-        if ($cat = $request->get_param('category')) {
+        $q = $request->get_param('q');
+        if ($q) {
+            $args['s'] = $q;
+        }
+        $cat = $request->get_param('category');
+        if ($cat) {
             $args['tax_query'] = [['taxonomy' => 'listing_category', 'field' => 'slug', 'terms' => $cat]];
         }
         $posts = get_posts($args);

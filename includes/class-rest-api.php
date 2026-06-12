@@ -134,9 +134,7 @@ class Gratis_Builder_REST_API {
     private static function validate_recursive($blocks, $prefix, &$issues) {
         foreach ($blocks as $i => $block) {
             $path = $prefix ? "{$prefix}.{$i}" : (string)$i;
-            if (empty($block['blockName']) && !empty(trim($block['innerHTML'] ?? ''))) {
-                // Classic/freeform block - ok
-            } elseif (!empty($block['blockName'])) {
+            if (!empty($block['blockName'])) {
                 $type = WP_Block_Type_Registry::get_instance()->get_registered($block['blockName']);
                 if (!$type) $issues[] = ['path' => $path, 'issue' => "Unknown block type: {$block['blockName']}"];
             }
