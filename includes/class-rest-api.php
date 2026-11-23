@@ -48,10 +48,57 @@ class Gratis_Builder_REST_API {
             'permission_callback' => [__CLASS__, 'check_edit'],
             'args' => ['content' => ['required' => true, 'type' => 'string']],
         ]);
+
+        register_rest_route($ns, '/patterns', [
+            'methods'             => 'GET',
+            'callback'            => [__CLASS__, 'list_patterns'],
+            'permission_callback' => '__return_true',
+            'args'                => [
+                'category' => ['type' => 'string', 'sanitize_callback' => 'sanitize_key'],
+                'search'   => ['type' => 'string', 'sanitize_callback' => 'sanitize_text_field'],
+            ],
+        ]);
     }
 
     public static function check_edit() {
         return current_user_can('edit_posts');
+    }
+
+    /**
+     * GET /wp-json/gratis-builder/v1/patterns
+     *
+     * Returns registered gratis-builder/* patterns (slug, title, description,
+     * categories) with optional ?category= and ?search= filtering.
+     */
+    public static function list_patterns(WP_REST_Request $request): WP_REST_Response {
+        $category = sanitize_key((string) $request->get_param('category'));
+        $search   = strtolower(trim(sanitize_text_field((string) $request->get_param('search'))));
+        $registry = WP_Block_Patterns_Registry::get_instance();
+        $patterns = [];
+        foreach ($registry->get_all_registered() as $pattern) {
+            if (0 !== strpos((string) ($pattern['name'] ?? ''), 'gratis-builder/')) {
+                continue;
+            }
+            $cats  = array_map('strval', (array) ($pattern['categories'] ?? []));
+            $title = (string) ($pattern['title'] ?? '');
+            $desc  = (string) ($pattern['description'] ?? '');
+            $slug  = str_replace('gratis-builder/', '', (string) $pattern['name']);
+
+            if ('' !== $category && !in_array($category, $cats, true)) {
+                continue;
+            }
+            if ('' !== $search && false === strpos(strtolower($slug . ' ' . $title . ' ' . $desc), $search)) {
+                continue;
+            }
+
+            $patterns[] = [
+                'slug'        => $slug,
+                'title'       => $title,
+                'description' => $desc,
+                'categories'  => $cats,
+            ];
+        }
+        return new WP_REST_Response($patterns, 200);
     }
 
     public static function parse_blocks($request) {

@@ -17,6 +17,7 @@ defined('ABSPATH') || exit;
 
 define('GRATIS_BUILDER_VERSION', '1.0.0');
 define('GRATIS_BUILDER_PATH', plugin_dir_path(__FILE__));
+define('GRATIS_BUILDER_URL', plugin_dir_url(__FILE__));
 
 require_once GRATIS_BUILDER_PATH . 'includes/class-rest-api.php';
 require_once GRATIS_BUILDER_PATH . 'includes/class-ai-generator.php';
