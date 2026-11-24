@@ -364,7 +364,7 @@ class Gratis_Builder_Admin {
             }
 
             $title        = (string) ($pattern['title'] ?? $slug);
-            $copy_content = esc_attr(wp_json_encode(['content' => (string) ($pattern['content'] ?? '')]));
+            $copy_content = (string) wp_json_encode(['content' => (string) ($pattern['content'] ?? '')]);
 
             echo '<div class="gb-pattern-card">';
 
@@ -399,7 +399,7 @@ class Gratis_Builder_Admin {
             echo '<span style="font-size:11px;color:#8c8f94;">' . esc_html($slug) . '</span>';
             echo '<button type="button" class="button button-primary gb-insert-btn"'
                 . ' data-pattern="' . esc_attr($slug) . '"'
-                . ' data-content="' . $copy_content . '">'
+                . ' data-content="' . esc_attr($copy_content) . '">'
                 . esc_html__('Insert', 'gratis-builder') . '</button>';
             echo '</div>';
 
