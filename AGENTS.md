@@ -32,6 +32,5 @@ Gratis Builder is a WordPress page builder plugin with AI-powered REST API, patt
 
 ## Related
 
-- `/Volumes/Projects/AGENTS.md` — Machine-wide agent guidance
-- `/Volumes/Projects/gratis/AGENTS.md` — Gratis plugin suite guidance
+- `https://gratis.superglobalsdevelopment.com/docs/gratis-builder/` — Gratis Builder documentation
 - `mcp-for-page-builders` — Visual auditing MCP for page builders
