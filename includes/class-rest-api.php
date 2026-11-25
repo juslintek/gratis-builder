@@ -114,25 +114,39 @@ class Gratis_Builder_REST_API {
     }
 
     public static function update_block($request) {
-        $post_id = $request->get_param('post_id');
-        $path = $request->get_param('path');
-        $attrs = $request->get_param('attrs');
+        $post_id = (int) $request->get_param('post_id');
+        $path    = sanitize_text_field((string) $request->get_param('path'));
+        $attrs   = $request->get_param('attrs');
         $content = $request->get_param('content');
-        $replace = $request->get_param('replace');
+        $replace = (bool) $request->get_param('replace');
 
         $post = get_post($post_id);
-        if (!$post) return new WP_Error('not_found', 'Post not found', ['status' => 404]);
+        if (!$post) {
+            return new WP_Error('not_found', 'Post not found', ['status' => 404]);
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error('rest_forbidden', 'You do not have permission to edit this post.', ['status' => 403]);
+        }
 
         $blocks = parse_blocks($post->post_content);
         $ref = &self::get_block_ref($blocks, $path);
-        if ($ref === null) return new WP_Error('invalid_path', 'Block path not found', ['status' => 400]);
+        if ($ref === null) {
+            return new WP_Error('invalid_path', 'Block path not found', ['status' => 400]);
+        }
 
-        if ($replace && $content) {
+        if ($replace && is_string($content) && '' !== $content) {
             $new_blocks = parse_blocks($content);
             $ref = $new_blocks[0] ?? $ref;
         } else {
-            if ($attrs) $ref['attrs'] = array_merge($ref['attrs'] ?? [], $attrs);
-            if ($content) $ref['innerHTML'] = $content;
+            if (is_array($attrs)) {
+                $ref['attrs'] = array_merge($ref['attrs'] ?? [], $attrs);
+            }
+            if (is_string($content) && '' !== $content) {
+                $ref['innerHTML'] = $content;
+                if (empty($ref['innerBlocks'])) {
+                    $ref['innerContent'] = [$content];
+                }
+            }
         }
 
         $new_content = serialize_blocks($blocks);
@@ -142,21 +156,37 @@ class Gratis_Builder_REST_API {
     }
 
     public static function batch_update($request) {
-        $post_id = $request->get_param('post_id');
+        $post_id    = (int) $request->get_param('post_id');
         $operations = $request->get_param('operations');
 
         $post = get_post($post_id);
-        if (!$post) return new WP_Error('not_found', 'Post not found', ['status' => 404]);
+        if (!$post) {
+            return new WP_Error('not_found', 'Post not found', ['status' => 404]);
+        }
+        if (!current_user_can('edit_post', $post_id)) {
+            return new WP_Error('rest_forbidden', 'You do not have permission to edit this post.', ['status' => 403]);
+        }
 
         $blocks = parse_blocks($post->post_content);
         $results = [];
 
-        foreach ($operations as $op) {
-            $path = $op['path'] ?? '';
-            $ref = &self::get_block_ref($blocks, $path);
-            if ($ref === null) { $results[] = ['path' => $path, 'error' => 'not found']; continue; }
-            if (!empty($op['attrs'])) $ref['attrs'] = array_merge($ref['attrs'] ?? [], $op['attrs']);
-            if (!empty($op['content'])) $ref['innerHTML'] = $op['content'];
+        foreach ((array) $operations as $op) {
+            $op   = (array) $op;
+            $path = sanitize_text_field((string) ($op['path'] ?? ''));
+            $ref  = &self::get_block_ref($blocks, $path);
+            if ($ref === null) {
+                $results[] = ['path' => $path, 'error' => 'not found'];
+                continue;
+            }
+            if (!empty($op['attrs']) && is_array($op['attrs'])) {
+                $ref['attrs'] = array_merge($ref['attrs'] ?? [], $op['attrs']);
+            }
+            if (!empty($op['content']) && is_string($op['content'])) {
+                $ref['innerHTML'] = $op['content'];
+                if (empty($ref['innerBlocks'])) {
+                    $ref['innerContent'] = [$op['content']];
+                }
+            }
             $results[] = ['path' => $path, 'success' => true];
         }
 
