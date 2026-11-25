@@ -1,4 +1,6 @@
 <?php
+
+defined('ABSPATH') || exit;
 return [
     'slug' => 'team-section',
     'title' => 'Team Section',

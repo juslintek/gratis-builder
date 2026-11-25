@@ -1,4 +1,6 @@
 <?php
+
+defined('ABSPATH') || exit;
 return [
     'slug' => 'hero-dark-centered',
     'title' => 'Hero — Dark Centered',

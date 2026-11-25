@@ -71,8 +71,9 @@ class Gratis_Builder_Directory {
         if ($q) {
             $args['s'] = $q;
         }
-        $cat = $request->get_param('category');
-        if ($cat) {
+        $cat = sanitize_key((string) $request->get_param('category'));
+        if ('' !== $cat) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- directory category filter.
             $args['tax_query'] = [['taxonomy' => 'listing_category', 'field' => 'slug', 'terms' => $cat]];
         }
         $posts = get_posts($args);

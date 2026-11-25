@@ -1,4 +1,6 @@
 <?php
+
+defined('ABSPATH') || exit;
 return [
     'slug' => 'features-grid',
     'title' => 'Features Grid',
