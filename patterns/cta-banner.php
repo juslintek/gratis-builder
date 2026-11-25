@@ -1,4 +1,6 @@
 <?php
+
+defined('ABSPATH') || exit;
 return [
     'slug' => 'cta-banner',
     'title' => 'CTA Banner',
